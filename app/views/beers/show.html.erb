@@ -1,7 +1,7 @@
 <p id="notice"><%= notice %></p>
 
 <p>
-  <h2>Name:</h2>
+  <strong>Name:</strong>
   <%= @beer.name %>
 </p>
 
@@ -12,7 +12,17 @@
 
 <p>
   <strong>Brewery:</strong>
-  <%= @beer.brewery_id %>
+  <%= @beer.brewery.name %>
+</p>
+
+<p>
+	<% if @beer.ratings.empty? %>
+ beer has not yet been rated!
+<% else %>
+ Has <%= @beer.ratings.size %> 
+ <%= "rating".pluralize(@beer.ratings.size) %>,
+ average <%=@beer.average_rating%>
+<% end %>
 </p>
 
 <%= link_to 'Edit', edit_beer_path(@beer) %> |
