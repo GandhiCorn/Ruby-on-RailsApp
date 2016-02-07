@@ -1,7 +1,12 @@
 Rails.application.routes.draw do
+  resources :memberships
+  resources :beer_clubs
   resources :users
   resources :beers
   resources :breweries
+  resources :users do
+    resources :memberships
+  end
 
   root 'breweries#index'
   get 'signup', to: 'users#new'

@@ -10,12 +10,14 @@
   <div class="navibar">
     <%= link_to 'breweries', breweries_path %>
     <%= link_to 'beers', beers_path %>
-    <%= link_to 'ratings', ratings_path %>
+    <%= link_to 'ratings', ratings_path %> 
+    <%= link_to 'clubs', beer_clubs_path  %>
     <%= link_to 'users', users_path %>
     <td> | </td>
     <% if current_user %>
     	<%= link_to current_user.username, current_user %>
     	<%= link_to 'rate a beer', new_rating_path %>
+    	<%= link_to "join a club", new_user_membership_path(current_user)  %>
     	<%= link_to 'sign out', signout_path, method: :delete %>
     	<% else %>
 		<%= link_to 'sign in', signin_path %>
@@ -24,16 +26,6 @@
   </div>
 
 <%= yield %>
-
-<% if session[:last_rating].nil? %>
-  <p>no ratings given</p>
-<% else %>
-  <p>previous rating: <%= session[:last_rating] %></p>
-<% end %>
-
-<% if current_user %>
-  <p><%= current_user.username %> signed in</p>
-<% end %>
 
 </body>
 </html>
