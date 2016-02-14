@@ -1,0 +1,14 @@
+language: ruby
+rvm:
+- 2.3.0
+script:
+- bundle exec rake db:migrate --trace
+- RAILS_ENV=test bundle exec rake db:migrate --trace
+- bundle exec rake db:test:prepare
+- bundle exec rspec -fd spec/
+deploy:
+ provider: heroku
+  app: gandhicorn # optional if it's the same as your repo name
+  api_key:
+    secure: dR9fOc774XPjTLlA5zQDeX+V0C5syuC8RoDQgYvt0hTP4IO9MIBcYOld/eKNW8THBMIemoH+uPr46MwQGM6i1LjD190KKRDKy7AL9NKCVmh2iSF8yV2J+mRD971dYOBYdY6KBkVYmym2SpK3C2JV1xficXDbMjGFy3Cth4eBxjx+Kouc78NtFHTuYFHR+qHdO6Px3DSWHkWDdBZomipV9svFyx2PSJe6K9I/hEWu1dWCCIuKmlscxkvOcPUFb/ouui2q4vijSVgUwwrqYPsOHmD+sc4fheEYqCGXRen4ZIf+uSqIuUdvvJjrC2bC2+gFN0okR20OZFlHqWo2i1/BB4m3RacLch50ZP+W1oOIs+DBSzGyi2vLpSAJUGUzeueubrgH/8/ordGP9iTR68AQoRHBllP/nR2dfdXuphq8sM4G88zrb3AOYL1OTUk6q8gEg3NlG4+at+0z+Aw/TIpmtZWHTPqlaXVHiUZ8TxO8buLrkL38mOaw9nFzqjYlx+vCEeVJqK3YFKMU0Ih+wZPGD+nZIgDMtuAYdFShQvp9h20xJVf8VboL/XMcmWZpmCf1x9i6KLR62MmF14rpkr9CyKf1lf0sdQHK7bx4hWDGibfs+gHV3xJKLfbocwP7nDDP41Jgf0tyTsUzrcZJguoyNvGxyeZYNs0JkpEiRap2BkQ=
+  run: "rake db:migrate"

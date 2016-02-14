@@ -1,1 +1,1 @@
-json.extract! @membership, :id, :beer_club_id, :user_id, :created_at, :updated_at
+json.extract! @membership, :id, :user_id, :beer_club_id, :created_at, :updated_at

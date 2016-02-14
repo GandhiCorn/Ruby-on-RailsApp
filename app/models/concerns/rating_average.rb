@@ -1,8 +1,7 @@
 module RatingAverage
-	extend ActiveSupport::Concern
-	def average_rating
-  	keskiarvo = 0.0
-  	self.ratings.map {|arvio| keskiarvo += arvio.score}  	
-  	keskiarvo / self.ratings.size
+  extend ActiveSupport::Concern
+
+  def average_rating
+    ratings.inject(0.0){ |sum, r| sum+r.score } / ratings.count
   end
 end
