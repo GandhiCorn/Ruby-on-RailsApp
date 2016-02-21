@@ -12,19 +12,30 @@ FactoryGirl.define do
   factory :rating2, class: Rating do
     score 20
   end
-
+  
   factory :brewery do
-    name ["Sinebrychoff", "Auran panimo", "Saimaan Juomatehdas", "Lapin Kulta", "Olvi", "Stadin Panimo",
-          "Laitilan Wirvoitusjuomatehdas", "Nokian Panimo", "Teerenpeli", "Suomenlinnan Panimo"].sample
-    year {rand(1900..2010)}
+    name "anonymous"
+    year 1900
+  end
+  
+  factory :style do
+    name "omnom"
+    description "tosi hyvää"
+  end
+  
+  factory :style2, class: Style do
+    name "cheapo"
+    description "tosi köyhää"
   end
 
+  factory :style3, class: Style do
+    name "mediocre"
+    description "tosi keskinkertaista"
+  end
+  
   factory :beer do
-    name {generate(:name)}
-    style ["Weizen", "Lager", "Pale ale", "IPA", "Porter"].sample
-  end
-
-  sequence :name do |n|
-    "Beer #{n}"
+    name "anonymous"
+    brewery
+    style
   end
 end

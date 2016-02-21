@@ -1,82 +1,48 @@
 class User < ActiveRecord::Base
   include RatingAverage
-
-  validates :username, uniqueness: true,
-                       length: { minimum: 3, maximum: 15 }
-
-  validates :password, length: { minimum: 4 },
-                       format: {
-                          with: /\d.*[A-Z]|[A-Z].*\d/,
-                          message: "has to contain one number and one upper case letter"
-                       }
-
-  has_many :ratings, dependent: :destroy
-  has_many :beers, through: :ratings
-  has_many :memberships
-  has_many :beer_clubs, through: :memberships
-
+  
   has_secure_password
+  
+  has_many :ratings, dependent: :destroy
+  has_many :memberships, dependent: :destroy
+  has_many :beers, through: :ratings
+  has_many :beer_clubs, through: :memberships
+  
+  validates :username, uniqueness: true
+  validates :username, length: { minimum: 3,
+                                 maximum: 15 }
+  validates :password, length: { minimum: 4 }
+  validates_format_of :password, with: /\A(?=.*[A-Z])(?=.*\d).+\Z/, on: :create
+  
   def favorite_beer
-    return nil if ratings.empty?
+    return nil if ratings.empty?   # palautetaan nil jos reittauksia ei ole
     ratings.order(score: :desc).limit(1).first.beer
   end
-
+  
   def favorite_style
     return nil if ratings.empty?
-    fav_style_name(group_user_ratings_by_style)
+
+    rated = ratings.map{ |r| r.beer.style }.uniq
+    rated.sort_by { |style| -rating_of_style(style) }.first
   end
 
   def favorite_brewery
     return nil if ratings.empty?
-    Brewery.find(fav_style_name(group_user_breweries_by_ratings))
+
+    rated = ratings.map{ |r| r.beer.brewery }.uniq
+    rated.sort_by { |brewery| -rating_of_brewery(brewery) }.first
   end
 
-  def fav_style_name(hash)
-    value = 0;
-    string = ""
-    hash.each do |k,v|
-      if hash[k] > value
-        value = hash[k]
-        string = k
-      end
-    end
-    string
+  private
+
+  def rating_of_style(style)
+    ratings_of = ratings.select{ |r| r.beer.style==style }
+    ratings_of.map(&:score).inject(&:+) / ratings_of.count.to_f
   end
 
-  def fav_style_rating(hash)
-    value = 0;
-    hash.each do |k,v|
-      if hash[k] > value
-        value = hash[k]
-      end
-    end
-    value
+  def rating_of_brewery(brewery)
+    ratings_of = ratings.select{ |r| r.beer.brewery==brewery }
+    ratings_of.map(&:score).inject(&:+) / ratings_of.count.to_f
   end
-
-  def group_user_breweries_by_ratings
-    ratings = {}
-    users_ratings = self.ratings.group_by { |i| i.beer[:brewery_id]}
-    users_ratings.each do |k,v|
-      sum = 0.0
-      v.each do |rating|
-        sum += rating.score
-      end
-      ratings[k] = sum / v.count
-    end
-    ratings
-  end
-
-
-  def group_user_ratings_by_style
-    ratings = {}
-    users_ratings = self.ratings.group_by { |i| i.beer[:style]}
-    users_ratings.each do |k,v|
-      sum = 0.0
-      v.each do |rating|
-        sum += rating.score
-      end
-      ratings[k] = sum / v.count
-    end
-    ratings
-  end
+  
 end
