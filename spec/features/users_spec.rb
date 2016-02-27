@@ -1,16 +1,16 @@
-
 require 'rails_helper'
 
 include Helpers
 
 describe "User" do
-  before :each do
-    FactoryGirl.create :user
-  end
+  let!(:user) { FactoryGirl.create :user }
 
   describe "who has signed up" do
     it "can signin with right credentials" do
-      sign_in(username:"Pekka", password:"Foobar1")
+      visit signin_path
+      fill_in('username', with:'Pekka')
+      fill_in('password', with:'Foobar1')
+      click_button('Log in')
 
       expect(page).to have_content 'Welcome back!'
       expect(page).to have_content 'Pekka'
@@ -35,44 +35,28 @@ describe "User" do
     }.to change{User.count}.by(1)
   end
 
-  it "we can see ratings from the user's page" do
-      user = User.first
-      create_n_random_breweries(3)
-      create_n_random_beers_with_breweries(10)
-      create_n_random_ratings(user, 5)
+  describe "have rated some beers" do
+    before :each do
+      @brewery = FactoryGirl.create :brewery, name:"Sierra Nevada"
+      other_brewery = FactoryGirl.create :brewery
+      ipa = FactoryGirl.create :style, name: "IPA"
+      lager = FactoryGirl.create :style
+      stout = FactoryGirl.create :style, name: "stout"
+
+      create_beers_with_ratings(user, lager, other_brewery, 10, 20, 15)
+      create_beers_with_ratings(user, ipa, @brewery, 25, 20)
+      create_beers_with_ratings(user, stout, other_brewery, 20, 23, 22)
+    end
+
+    it "the favorite style is shown at user's page" do
       visit user_path(user)
-      user.ratings do |r|
-        expect(page).to have_content "#{r.name}"
-      end
-  end
+      expect(page).to have_content 'Favorite style IPA'
+    end
 
-  #Tee testi, joka varmistaa että käyttäjän poistaessa oma reittauksensa, se poistuu tietokannasta.
-  it "when user deletes a rating, it is removed from the db also" do
-    sign_in(username:"Pekka", password:"Foobar1")
-    user = User.first
-    create_n_random_breweries(3)
-    create_n_random_beers_with_breweries(10)
-    create_n_random_ratings(user, 5)
-    visit user_path(user)
-    click_link("delete", :match => :first)
-    expect(user.ratings.count).to eq(4)
-  end
+    it "the favorite brewery is shown at user's page" do
+      visit user_path(user)
+      expect(page).to have_content 'Favorite brewery Sierra Nevada'
+    end
 
-  it "shows the users favourite brewery correctly" do
-    user = User.first
-    create_n_random_breweries(3)
-    create_n_random_beers_with_breweries(10)
-    create_n_random_ratings(user, 5)
-    visit user_path(user)
-    expect(page).to have_content "Favourite Brewery: #{user.favorite_brewery.name}"
-  end
-
-  it "shows the users favourite beer style correctly" do
-    user = User.first
-    create_n_random_breweries(3)
-    create_n_random_beers_with_breweries(10)
-    create_n_random_ratings(user, 5)
-    visit user_path(user)
-    expect(page).to have_content "Favourite Beer Style: #{user.favorite_style}"
   end
 end

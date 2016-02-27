@@ -11,12 +11,11 @@ describe "Beer" do
   describe "if a user logged in" do
     before :each do
       FactoryGirl.create :user
-      sign_in(username:"Ville", password:"Foobar1")
+      sign_in(username:"Pekka", password:"Foobar1")
     end
 
     it "a new beer is created if a valid name specified" do
       visit new_beer_path
-
       fill_in('beer_name', with:'CrapIPA')
       select('Lager', from:'beer[style_id]')
       expect{
@@ -28,8 +27,10 @@ describe "Beer" do
       visit new_beer_path
       click_button "Create Beer"
       expect(Beer.count).to be(0)
-
+      expect(page).to have_content 'prohibited this beer from being saved'
       expect(page).to have_content "Name can't be blank"
     end
+
   end
+
 end

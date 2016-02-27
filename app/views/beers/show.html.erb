@@ -1,30 +1,24 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Name:</strong>
-  <%= @beer.name %>
-</p>
-
+<h2><%= @beer.name %></h2>
 <p>
   <strong>Style:</strong>
-  <%= @beer.style.name %>
+  <%= link_to @beer.style.name, @beer.style %>
 </p>
 
 <p>
   <strong>Brewery:</strong>
-  <%= @beer.brewery.name %>
+  <%= link_to @beer.brewery.name, @beer.brewery %>
 </p>
 
 <p>
-<% if @beer.ratings.empty? %>
-  The beer has not yet been rated!
-<% else %>
-  The beer has
-  <%= pluralize(@beer.ratings.count, "rating", "ratings") %>,
-  average <%= @beer.average_rating %>
-<% end %>
+  <% if @beer.ratings.empty? %>
+    beer has not yet been rated!
+  <% else %>
+    beer has <%= pluralize(@beer.ratings.count, 'rating') %>, average <%= @beer.average_rating %>
+  <% end %>
 </p>
-  
+
 <% if current_user %>
 
   <h4>give a rating:</h4>

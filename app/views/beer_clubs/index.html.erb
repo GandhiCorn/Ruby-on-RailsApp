@@ -15,18 +15,14 @@
   <tbody>
     <% @beer_clubs.each do |beer_club| %>
       <tr>
-        <td><%= beer_club.name %></td>
+        <td><%= link_to beer_club.name, beer_club %></td>
         <td><%= beer_club.city %></td>
         <td><%= beer_club.founded %></td>
-        <td><%= link_to 'Show', beer_club %></td>
-        <td><%= link_to 'Edit', edit_beer_club_path(beer_club) %></td>
-        <td><%= link_to 'Destroy', beer_club, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
 <br>
-<% if not current_user.nil? %>
-  <%= link_to('New Beer', new_beer_path) %>
-<% end %>
+
+<%= link_to 'New Beer club', new_beer_club_path %>

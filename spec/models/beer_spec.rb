@@ -1,24 +1,22 @@
 require 'rails_helper'
 
 RSpec.describe Beer, type: :model do
-  let(:style){ FactoryGirl.create(:style) }
-  
-  it "is saved with proper details" do
-    beer = Beer.create name:"Koe", style:style
+  it "is created if proper name and style set" do
+    beer = Beer.create name:"iso 3", style: Style.new(name: "lager")
 
     expect(beer).to be_valid
     expect(Beer.count).to eq(1)
   end
-  
-  it "is not saved without a name" do
-    beer = Beer.create style:style
+
+  it "is not created if no name set" do
+    beer = Beer.create style: Style.new(name: "lager")
 
     expect(beer).not_to be_valid
     expect(Beer.count).to eq(0)
   end
-  
-  it "is not saved without a style" do
-    beer = Beer.create name:"bisse"
+
+  it "is not created if no style set" do
+    beer = Beer.create name:"iso 3"
 
     expect(beer).not_to be_valid
     expect(Beer.count).to eq(0)
