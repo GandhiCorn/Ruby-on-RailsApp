@@ -1,11 +1,53 @@
-<h2>List of ratings</h2>
+<h2>Rating statistics</h2>
 
-<p>
-  Number of ratings <%= @ratings.count %>
-</p>
+<div class="row">
+    <%= render 'list', items: @best_beers, header: "beers" %>
+    <%= render 'list', items: @best_breweries, header: "breweries" %>
+    <%= render 'list', items: @best_styles, header: "styles" %>
+</div>
 
+<h3>Most active users</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <td></td>
+            <th>favorite beer</th>
+            <th>preferred style</th>
+            <th>favorite brewery</th>
+            <th>ratings</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% @most_active_raters.each do |user| %>
+          <tr>
+              <td>
+                  <%= link_to user.username, user %> 
+              </td>
+              <td>
+                  <%= user.favorite_beer %>
+              </td>
+              <td>
+                  <%= user.favorite_style %>
+              </td>
+              <td>
+                  <%= user.favorite_brewery %>
+              </td>
+              <td>
+                  <%= user.ratings.size %>
+              </td>
+          </tr>
+        <% end %>
+    </tbody>
+</table>
+
+<h3>Recent ratings</h3>
 <ul>
-  <% @ratings.each do |rating| %>
-    <li> <%= rating %> <%= link_to rating.user.username, rating.user %></li>
-  <% end %>
+ <% @latest_ratings.each do |rating| %>
+    <li> 
+      <%= rating %> 
+      <%= link_to rating.user.username, rating.user %> 
+    </li>
+ <% end %>
 </ul>
+
+<%= link_to "New Rating", new_rating_path, class:"btn btn-primary" %>

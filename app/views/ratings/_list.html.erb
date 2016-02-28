@@ -1,0 +1,23 @@
+<div class="col-md-4">
+  <h3>Best <%= header %> </h3>
+  <table class="table">
+      <thead>
+        <tr>
+        <td></td>
+        <th>average</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% items.each do |item| %>
+        <tr>
+          <td> 
+            <%= link_to item, item %> 
+          </td>
+          <td>
+            <%= round(item.average_rating) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
