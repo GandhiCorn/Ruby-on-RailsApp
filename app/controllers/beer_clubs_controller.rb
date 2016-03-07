@@ -1,11 +1,13 @@
 class BeerClubsController < ApplicationController
   before_action :set_beer_club, only: [:show, :edit, :update, :destroy]
   before_action :ensure_that_signed_in, except: [:index, :show]
+  before_action :ensure_that_admin, only: [:delete]
 
   # GET /beer_clubs
   # GET /beer_clubs.json
   def index
     @beer_clubs = BeerClub.all
+    @memberships = Membership.all
   end
 
   # GET /beer_clubs/1
@@ -35,6 +37,7 @@ class BeerClubsController < ApplicationController
 
     respond_to do |format|
       if @beer_club.save
+        Membership.create(beer_club_id: @beer_club.id, user_id: current_user.id, confirmed:true)
         format.html { redirect_to @beer_club, notice: 'Beer club was successfully created.' }
         format.json { render :show, status: :created, location: @beer_club }
       else

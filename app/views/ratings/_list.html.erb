@@ -1,23 +1,17 @@
-<div class="col-md-4">
-  <h3>Best <%= header %> </h3>
-  <table class="table">
-      <thead>
-        <tr>
-        <td></td>
-        <th>average</th>
+<table class="table table-hover table-condensed">
+  <thead>
+    <tr>
+      <th></th>
+      <th>average</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% items.each do |item| %>
+      <tr>
+        <td><%= link_to item.name, item %></td>
+        <td><%= round(item.average_rating) %></td>
       </tr>
-    </thead>
-    <tbody>
-      <% items.each do |item| %>
-        <tr>
-          <td> 
-            <%= link_to item, item %> 
-          </td>
-          <td>
-            <%= round(item.average_rating) %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+    <% end %>
+  </tbody>
+</table>

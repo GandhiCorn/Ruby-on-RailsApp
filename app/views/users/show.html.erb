@@ -1,42 +1,64 @@
-<p id="notice"><%= notice %></p>
-
-<h2>
-  <%= @user.username %>
-</h2>
+<!--<p id="notice"><%= notice %></p>-->
 
 <p>
-  Has made <%= pluralize(@user.ratings.count, 'rating') %>
+  <h2> <%= @user.username %>
+    <% if current_user && current_user.admin && @user.suspended %>
+      <span class="label label-info">account frozen</span>
+    <%end%>
+  </h2>
+</p>
+<p>
+Favorite beer style: <%= @user.favorite_style.name unless @user.favorite_style.nil?%> <br>
+Favorite brewery: <%=  @user.favorite_brewery.name unless @user.favorite_brewery.nil? %>
 </p>
 
-<% if @user.ratings.any? %>
-  <p>Favorite style <%= @user.favorite_style.name %></p>
+<h3> Beer clubs </h3>
+<p> <strong> Member of</strong>
+  <ul>
+  <% @user.beer_clubs.each do |club| %>
+    <% if club.members.find_by(id: @user.id) %>
+    <li>
+      <%= link_to club.name, beer_club_path(club.id) %>
+      <%end%>
+    </li>
+  <% end %>
+</ul>
+</p>
 
-  <p>Favorite brewery <%= @user.favorite_brewery.name %></p>
-<% end %>
+<p> <strong> Applied membership of</strong>
+  <ul>
+  <% @user.beer_clubs.each do |club| %>
+    <% if not club.members.find_by(id: @user.id) %>
+    <li>
+      <%= link_to club.name, beer_club_path(club.id) %>
+      <%end%>
+    </li>
+  <% end %>
+</ul>
+</p>
 
-<% if @user.beer_clubs.any? %>
-  <p>
-    Member of
-    <% @user.beer_clubs.each do |club| %>
-      <%= link_to club.name, club %>
-    <% end %>
-  </p>
-<% else %>
-  <p>No club memberships</p>
-<% end %>
 
+
+<h3>ratings</h3>
+  Has made <%=pluralize(@user.ratings.count, 'rating') %>, average <%= round(@user.average_rating) %>
 <ul>
   <% @user.ratings.each do |rating| %>
     <li>
       <%= rating %>
-      <% if @user == current_user %>
-        <%= link_to 'delete', rating, method: :delete, data: { confirm: 'Are you sure?' } %>
+      <%if @user == current_user %>
+        <%= link_to 'delete', rating_path(rating.id), method: :delete, data: { confirm: 'Are you sure?'} %>
       <% end %>
     </li>
   <% end %>
 </ul>
+<br>
 
-<% if @user == current_user %>
-  <%= link_to 'Delete account', @user, method: :delete, data: { confirm: 'Are you sure?' }, class:"btn btn-danger"%>
-  <%= link_to 'Edit', edit_user_path(@user), class:"btn btn-primary" %>
-<% end %>
+<%if current_user %>
+
+  <p><%= freeze_or_reactivate_button(@user)%></p>
+
+  <%if @user == current_user or current_user.admin? %>
+    <%=link_to('Edit', edit_user_path(@user) , class:"btn btn-primary btn-sm")%>
+    <%=link_to('Destroy', @user, method: :delete, data: { confirm: 'Are you sure?' }, class:"btn btn-danger btn-sm" )%>
+  <%end%>
+<%end%>

@@ -4,12 +4,13 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    @users = User.includes(:beers, :ratings).all
   end
 
   # GET /users/1
   # GET /users/1.json
   def show
+    @beer_clubs = BeerClub.all
   end
 
   # GET /users/new
@@ -41,12 +42,16 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1.json
   def update
     respond_to do |format|
-      if user_params[:username].nil? and current_user == @user and @user.update(user_params)
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
-        format.json { render :show, status: :ok, location: @user }
+      if @user.provider.nil?
+        if user_params[:username].nil? && @user == current_user && @user.update(user_params)
+          format.html { redirect_to @user, notice: 'User was successfully updated.' }
+          format.json { render :show, status: :ok, location: @user }
+        else
+          format.html { render :edit }
+          format.json { render json: @user.errors, status: :unprocessable_entity }
+        end
       else
-        format.html { render :edit }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
+        format.html { redirect_to @user, notice: 'Go to your provider to change password.' }
       end
     end
   end
@@ -54,13 +59,30 @@ class UsersController < ApplicationController
   # DELETE /users/1
   # DELETE /users/1.json
   def destroy
-    if current_user == @user
+    if (@user == current_user or current_user.admin?)
+      session[:user_id] = nil unless @user != current_user
       @user.destroy
-      #session[:user_id] = nil
+      respond_to do |format|
+        format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
+        format.json { head :no_content }
+      end
+    else
+      format.html { render :edit, notice: "Can't destroy other users." }
+      format.json { render json: @user.errors, status: :unprocessable_entity }
     end
-    respond_to do |format|
-      format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
-      format.json { head :no_content }
+  end
+
+
+  def toggle_suspension
+    user = User.find(params[:id])
+    if (current_user.admin and not user.admin)
+      user.update_attribute :suspended, (not user.suspended)
+
+      new_status = user.suspended? ? "frozen" : "reactivated"
+
+      redirect_to :back, notice: "Account was successfully #{new_status}"
+    else
+      redirect_to :back, notice: "Cannot freeze account"
     end
   end
 

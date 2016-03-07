@@ -15,7 +15,7 @@ class MembershipsController < ApplicationController
   # GET /memberships/new
   def new
     @membership = Membership.new
-    @clubs = BeerClub.all.reject{ |club| current_user.in? club.members }
+    @freememberships = BeerClub.free(current_user.id)
   end
 
   # GET /memberships/1/edit
@@ -26,14 +26,17 @@ class MembershipsController < ApplicationController
   # POST /memberships.json
   def create
     @membership = Membership.new(membership_params)
-    club = BeerClub.find membership_params[:beer_club_id]
-    if not current_user.in? club.members and @membership.save
-      current_user.memberships << @membership
-      @membership.save
-      redirect_to beer_club_path(club), notice: "Welcome to #{@membership.beer_club.name}"
-    else
-      @clubs = BeerClub.all
-      render :new
+
+      respond_to do |format|
+       # if not Membership.where(beer_club_id: params[:beer_club_id]).pluck(:user_id).include? current_user.id and
+        if @membership.save
+        current_user.memberships << @membership
+        format.html { redirect_to beer_club_path(@membership.beer_club_id), notice: "Request to join club sent." }
+        format.json { render :show, status: :created, location: @membership }
+      else
+        format.html { render :new }
+        format.json { render json: @membership.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -56,10 +59,18 @@ class MembershipsController < ApplicationController
   def destroy
     @membership.destroy
     respond_to do |format|
-      format.html { redirect_to user_path(@membership.user), notice: 'Membership was successfully destroyed.' }
+      format.html { redirect_to user_path(@membership.user_id), notice: "Membership in #{@membership.beer_club.name} ended." }
       format.json { head :no_content }
     end
   end
+
+  def toggle_confirmation
+    membership = Membership.find(params[:id])
+    membership.update_attribute :confirmed, true
+
+    redirect_to :back, notice: "Membership was successfully confirmed"
+  end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.
@@ -69,6 +80,6 @@ class MembershipsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def membership_params
-      params.require(:membership).permit(:beer_club_id)
+      params.require(:membership).permit(:beer_club_id, :user_id)
     end
 end

@@ -2,16 +2,32 @@ Rails.application.routes.draw do
   resources :styles
   resources :beer_clubs
   resources :memberships
-  resources :users
+  resources  :beers
+  resources :breweries
+  resources :users do
+    post 'toggle_lock', on: :member
+  end
+
   resource :session, only: [:new, :create, :destroy]
 
   get 'signup', to: 'users#new'
   get 'signin', to: 'sessions#new'
+  get 'beerlist', to:'beers#list'
+  get 'ngbeerlist', to: 'beers#nglist'
+  get 'brewerylist', to: 'breweries#list'
   delete 'signout', to: 'sessions#destroy'
 
   resources :beers
-  resources :breweries
+  resources :breweries do
+    post 'toggle_activity', on: :member
+  end
+
   resources :ratings, only: [:index, :new, :create, :destroy]
+
+  
+   resources :memberships do
+     post 'toggle_confirmation', on: :member
+   end
 
   resources :places, only:[:index, :show]
   post 'places', to:'places#search'
